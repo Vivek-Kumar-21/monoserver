@@ -1,0 +1,53 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-dependencies:
+    name: Validate Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack (Yarn)
+        run: corepack enable
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies (frozen lockfile)
+        run: yarn install --immutable
+        
+      - name: Verify no package-lock.json
+        run: |
+          if [ -f "package-lock.json" ]; then
+            echo "Error: package-lock.json found! This is a Yarn-only monorepo."
+            exit 1
+          fi
+
+      - name: Check for hoisting issues
+        run: yarn dedupe --check
+
+      - name: Audit vulnerabilities
+        run: yarn npm audit
+
+      - name: Check workspace integrity
+        run: yarn workspaces list
