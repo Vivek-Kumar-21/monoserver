@@ -1,5 +1,7 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,6 +13,9 @@ async function bootstrap() {
     origin: process.env.WEB_URL || 'http://localhost:3000',
     credentials: true,
   });
+
+  // Enable cookie parser
+  app.use(cookieParser());
 
   const port = process.env.PORT || 3001;
   await app.listen(port);

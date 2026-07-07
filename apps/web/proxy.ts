@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 
 // ─── Route Config ─────────────────────────────────────────────────────────────
 
-const PUBLIC_ROUTES = new Set(['/login', '/register', '/api/auth', '/api/card']);
+const PUBLIC_ROUTES = new Set(['/login', '/register', '/api/card']);
 const AUTH_ROUTES = new Set(['/login', '/register']);
 
 // ─── Rate Limiting ────────────────────────────────────────────────────────────
@@ -28,9 +27,9 @@ async function checkRateLimit(ip: string): Promise<boolean> {
   return count <= limit;
 }
 
-// ─── Middleware ────────────────────────────────────────────────────────────────
+// ─── Proxy (Middleware) ───────────────────────────────────────────────────────
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow Next.js internals + static assets through
@@ -58,16 +57,16 @@ export default async function middleware(request: NextRequest) {
   const isPublic = [...PUBLIC_ROUTES].some((route) => pathname.startsWith(route));
   if (isPublic) return NextResponse.next();
 
-  // Check auth session
-  const session = await auth();
+  // Check auth session via auth_token cookie
+  const authToken = request.cookies.get('auth_token')?.value;
 
   // Redirect authenticated users away from auth pages
-  if (session && AUTH_ROUTES.has(pathname)) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (authToken && AUTH_ROUTES.has(pathname)) {
+    return NextResponse.redirect(new URL('/onboarding', request.url));
   }
 
   // Redirect unauthenticated users to login
-  if (!session) {
+  if (!authToken) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
@@ -79,3 +78,4 @@ export default async function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
+

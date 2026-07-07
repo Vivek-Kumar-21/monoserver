@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUser as auth } from '@/lib/user';
 import { db } from '@/lib/db';
 import { githubActivity, codeforcesActivity } from '@/lib/db/schema';
 import { eq, and, desc, gte, lte, sql } from 'drizzle-orm';
@@ -9,7 +9,7 @@ export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!session?.id) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 

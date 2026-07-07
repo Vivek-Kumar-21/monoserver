@@ -34,9 +34,10 @@ export function AuthCard({ error, callbackUrl, className }: AuthCardProps) {
 
       {/* Social auth */}
       <div className="w-full max-w-[320px] space-y-3">
-        <SocialAuthButton provider="google" />
-        <SocialAuthButton provider="github" />
+        <SocialAuthButton provider="google" callbackUrl={callbackUrl} />
+        <SocialAuthButton provider="github" callbackUrl={callbackUrl} />
       </div>
     </div>
   );
 }
+

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUser as auth } from '@/lib/user';
 import { GenerateRoadmapSchema } from '@bamblu/validations';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!session?.id) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   // Returning a stub roadmap for now
   const stub = {
     id: crypto.randomUUID(),
-    userId: session.user.id,
+    userId: session.id,
     title: `${targetRole} Roadmap`,
     targetRole,
     targetCompanies,

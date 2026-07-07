@@ -1,6 +1,7 @@
 'use client';
 
-import { signOut } from 'next-auth/react';
+import { useUser } from '@/hooks/use-user';
+// TODO: Implement manual signOut by fetching /api/auth/logout
 import { Bell, LogOut, RefreshCw } from 'lucide-react';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { useMutation } from '@tanstack/react-query';
@@ -60,7 +61,10 @@ export function Navbar({ user }: NavbarProps) {
         {/* Sign out */}
         <button
           id="navbar-signout-btn"
-          onClick={() => signOut({ callbackUrl: '/login' })}
+          onClick={async () => {
+            await fetch('http://localhost:3001/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = '/login';
+          }}
           className="rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           title="Sign out"
           aria-label="Sign out"

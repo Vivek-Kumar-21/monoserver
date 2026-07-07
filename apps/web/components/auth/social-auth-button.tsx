@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@bamblu/utils';
+import { Loader2 } from 'lucide-react';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,7 @@ type Provider = 'google' | 'github';
 
 interface SocialAuthButtonProps {
   provider: Provider;
+  callbackUrl?: string;
   isLoading?: boolean;
   className?: string;
 }
@@ -51,14 +53,25 @@ const providerConfig: Record<Provider, { label: string; icon: React.FC<{ classNa
   github: { label: 'Continue with GitHub', icon: GitHubIcon },
 };
 
-export function SocialAuthButton({ provider, isLoading, className }: SocialAuthButtonProps) {
+export function SocialAuthButton({ provider, callbackUrl, isLoading: externalLoading, className }: SocialAuthButtonProps) {
   const { label, icon: Icon } = providerConfig[provider];
+  const [isPending, setIsPending] = React.useState(false);
+
+  const isDisabled = isPending || externalLoading;
+
+  async function handleClick() {
+    if (isDisabled) return;
+    setIsPending(true);
+    // Redirect to NestJS API
+    window.location.href = `http://localhost:3001/api/auth/${provider}`;
+  }
 
   return (
     <button
       id={`social-auth-${provider}-btn`}
       type="button"
-      disabled={isLoading}
+      disabled={isDisabled}
+      onClick={handleClick}
       className={cn(
         'flex w-full items-center justify-center gap-3 rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3 text-sm font-medium text-slate-200 transition-colors',
         'hover:bg-slate-700/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 active:bg-slate-700',
@@ -66,8 +79,9 @@ export function SocialAuthButton({ provider, isLoading, className }: SocialAuthB
         className,
       )}
     >
-      <Icon />
-      {label}
+      {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Icon />}
+      {isPending ? 'Redirecting…' : label}
     </button>
   );
 }
+

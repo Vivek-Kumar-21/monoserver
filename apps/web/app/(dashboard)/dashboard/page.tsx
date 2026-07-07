@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { auth } from '@/lib/auth';
+import { getUser as auth } from '@/lib/user';
+import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { githubStats, codeforcesStats, skills } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -14,7 +15,8 @@ export const metadata: Metadata = { title: 'Dashboard' };
 
 export default async function DashboardPage() {
   const session = await auth();
-  const userId = session!.user.id;
+  if (!session) redirect('/login');
+  const userId = session.id;
 
   const [ghStats, cfStats, userSkills] = await Promise.all([
     db.query.githubStats.findFirst({

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { auth } from '@/lib/auth';
+import { getUser as auth } from '@/lib/user';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';

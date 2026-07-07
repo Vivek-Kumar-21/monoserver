@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUser as auth } from '@/lib/user';
 import { db } from '@/lib/db';
 import { githubStats, codeforcesStats, skills } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -18,14 +18,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!session?.id) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   const { id } = params;
 
   // Allow users to only view their own stats (or we'd need public profile logic)
-  if (session.user.id !== id) {
+  if (session.id !== id) {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
 

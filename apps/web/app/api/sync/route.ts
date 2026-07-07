@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUser as auth } from '@/lib/user';
 import { SyncRequestSchema } from '@bamblu/validations';
 import { acquireLock, releaseLock, cacheKeys, deleteCache } from '@/lib/redis';
 import { db } from '@/lib/db';
@@ -11,7 +11,7 @@ export const maxDuration = 60; // seconds — Vercel Pro limit
 
 export async function POST(request: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!session?.id) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { sources, force } = parsed.data;
-  const userId = session.user.id;
+  const userId = session.id;
 
   const results: Record<string, string> = {};
 
