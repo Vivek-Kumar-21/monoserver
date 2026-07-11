@@ -1,76 +1,66 @@
-'use client';
+import Link from 'next/link';
 
-import { useUser } from '@/hooks/use-user';
-// TODO: Implement manual signOut by fetching /api/auth/logout
-import { Bell, LogOut, RefreshCw } from 'lucide-react';
-import { SearchBar } from '@/components/shared/SearchBar';
-import { useMutation } from '@tanstack/react-query';
-
-interface NavbarProps {
-  user: { name?: string | null; id: string };
-}
-
-export function Navbar({ user }: NavbarProps) {
-  const syncMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch('/api/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sources: ['github', 'codeforces'], force: false }),
-      });
-      if (!res.ok) throw new Error('Sync failed');
-      return res.json();
-    },
-  });
-
+export function Navbar() {
   return (
     <header
       id="navbar"
-      className="sticky top-0 z-30 flex items-center gap-4 px-6 py-3 border-b border-border bg-background/80 backdrop-blur-md"
+      className="sticky top-0 z-30 flex items-center justify-between px-8 py-5 h-[78px] bg-[#0a0e1a] border-b border-white/5"
     >
-      <div className="flex-1">
-        <SearchBar id="navbar-search" placeholder="Search users, problems…" />
-      </div>
+      <Link href="/" className="text-xl font-bold tracking-wide text-white">
+        BAMBLU
+      </Link>
 
-      <div className="flex items-center gap-2">
-        {/* Sync button */}
-        <button
-          id="navbar-sync-btn"
-          onClick={() => syncMutation.mutate()}
-          disabled={syncMutation.isPending}
-          title="Sync activity"
-          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      <nav className="flex items-center gap-10">
+        <Link
+          href="#features"
+          className="text-xs font-medium tracking-wider text-gray-400 hover:text-white transition-colors"
         >
-          <RefreshCw
-            className={`h-3.5 w-3.5 ${syncMutation.isPending ? 'animate-spin' : ''}`}
-            aria-hidden="true"
-          />
-          {syncMutation.isPending ? 'Syncing…' : 'Sync'}
-        </button>
+          FEATURES
+        </Link>
 
-        {/* Notifications */}
-        <button
-          id="navbar-notifications-btn"
-          className="relative rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          title="Notifications"
-          aria-label="View notifications"
+        <Link
+          href="#analytics"
+          className="text-xs font-medium tracking-wider text-gray-400 hover:text-white transition-colors"
         >
-          <Bell className="h-4 w-4" aria-hidden="true" />
-        </button>
+          ANALYTICS
+        </Link>
 
-        {/* Sign out */}
-        <button
-          id="navbar-signout-btn"
-          onClick={async () => {
-            await fetch('http://localhost:3001/api/auth/logout', { method: 'POST', credentials: 'include' });
-            window.location.href = '/login';
-          }}
-          className="rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          title="Sign out"
-          aria-label="Sign out"
+        <Link
+          href="#integrations"
+          className="text-xs font-medium tracking-wider text-gray-400 hover:text-white transition-colors"
         >
-          <LogOut className="h-4 w-4" aria-hidden="true" />
-        </button>
+          INTEGRATIONS
+        </Link>
+
+        <Link
+          href="#how-it-works"
+          className="text-xs font-medium tracking-wider text-gray-400 hover:text-white transition-colors"
+        >
+          HOW IT WORKS
+        </Link>
+
+        <Link
+          href="#about"
+          className="text-xs font-medium tracking-wider text-gray-400 hover:text-white transition-colors"
+        >
+          ABOUT
+        </Link>
+      </nav>
+
+      <div className="flex items-center gap-3">
+        <Link
+          href="/login"
+          className="rounded-lg bg-white px-6 py-2.5 text-sm font-semibold text-black hover:bg-gray-100 transition-colors"
+        >
+          Log In
+        </Link>
+
+        <Link
+          href="/signup"
+          className="rounded-lg bg-cyan-400 px-6 py-2.5 text-sm font-semibold text-black hover:bg-cyan-300 transition-colors"
+        >
+          Get Started Free
+        </Link>
       </div>
     </header>
   );
